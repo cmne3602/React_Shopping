@@ -1,5 +1,9 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from 'styled-components'
+import { useState } from 'react';
+import { Nav } from 'react-bootstrap';
+import './Detail.css'
 
 let Btn = styled.button`
     background : ${ props=>props.bg }};
@@ -10,15 +14,35 @@ let Box = styled.div`
     background : grey;
     padding : 20px;
 `
-let NewBtn = styled.button(Btn)
+let NewBtn = styled(Btn)`
+    
+`
 
+let Detail = function(props) {
+    let [isTimeout, setIsTimeout] = useState(false);
+    useEffect(()=>{ //mount, update
+        let a = setTimeout(()=>{
+            setIsTimeout(true);
+        }, 2000);
 
-let Detail = function(props){
+        return()=>{
+            clearTimeout(a)
+        } //mount 실행X, unmount 실행
+    })
+    
+    let [text, setText] = useState('');
+    let [tabID, setTabID] = useState(1);
+
+    useEffect(()=>{
+        if(isNaN(text)) alert('그러지마세요');
+    }, [text])
 
     let {id} = useParams();
-    console.log(id)
+
     return(
         <div className="container">
+            <Sale isTimeout={isTimeout}></Sale>
+            <input onChange={(e)=>{ setText(text + e.target.value); }}></input>
             <Box>
                 <Btn bg='blue'>버튼</Btn>
                 <Btn bg='orange'>버튼</Btn>
@@ -34,7 +58,48 @@ let Detail = function(props){
                     <button className="btn btn-danger">주문하기</button> 
                 </div>
             </div>
+
+            <Nav variant="tabs" defaultActiveKey="link3">
+                <Nav.Item>
+                    <Nav.Link eventKey="link1" onClick={()=>{ setTabID(1); }}>Tab 1</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="link2" onClick={()=>{ setTabID(2); }}>Tab 2</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="link3" onClick={()=>{ setTabID(3); }}>Tab 3</Nav.Link>
+                </Nav.Item>
+            </Nav>
+            <Modal id={tabID}></Modal>
         </div> 
+    )
+}
+
+function Modal(props) {
+    let [fade, setFade] = useState('');
+
+    useEffect(()=>{
+        setTimeout(()=>{ setFade('end') }, 100);
+
+        return ()=>{
+            setFade('')
+        }
+    }, [props.id])
+
+    return(
+        <div className={"start "+fade}>
+            모달 {props.id} 입니다.
+        </div>
+    )
+}
+
+function Sale(props) {
+    if(props.isTimeout)
+        return;
+    return(
+        <div className="alert-warning">
+            2초 이내 구매 시 할인
+        </div>
     )
 }
 
